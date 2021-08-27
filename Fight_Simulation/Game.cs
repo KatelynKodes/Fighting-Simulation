@@ -27,13 +27,11 @@ namespace Fight_Simulation
             PrintStats(Monster2);
 
             //Fight
-            float damagetaken = CalculateDamage(Monster1.Attk, Monster2.Def);
-            Monster2.health = Monster2.health - damagetaken;
+            float damagetaken = fight(ref Monster1, ref Monster2);
             Console.WriteLine("Monster 1 attacks monster 2");
             Console.WriteLine(Monster2.name + " takes " + damagetaken + " damage");
 
-            damagetaken = CalculateDamage(Monster2.Attk, Monster1.Def);
-            Monster1.health = Monster1.health - damagetaken;
+            damagetaken = fight(ref Monster2, ref Monster1);
             Console.WriteLine("Monster 2 attacks monster 1");
             Console.WriteLine(Monster1.name + " takes " + damagetaken + " damage");
 
@@ -46,6 +44,18 @@ namespace Fight_Simulation
             Console.ReadKey();
         }
 
+        /// <summary>
+        /// Subtracts the health of the monster defender from the damage calculated from the Calculate Damage Method
+        /// </summary>
+        /// <param name="MonsterAttacker"></param>
+        /// <param name="MonsterDefender"></param>
+        /// <returns></returns>
+        float fight( ref Monster MonsterAttacker, ref Monster MonsterDefender)
+        {
+            float damagetaken = CalculateDamage(MonsterAttacker, MonsterDefender);
+            MonsterDefender.health = MonsterDefender.health - damagetaken;
+            return damagetaken;
+        }
         void PrintStats(Monster monster)
         {
             Console.WriteLine(monster.name + "\nHealth: " + monster.health + "\nAttack: " + monster.Attk + "\nDefense: " + monster.Def);
@@ -68,6 +78,11 @@ namespace Fight_Simulation
             {
                 return damage;
             }
+        }
+
+        float CalculateDamage(Monster attacker, Monster defender)
+        {
+            return attacker.Attk - defender.Def;
         }
 
         struct Monster
