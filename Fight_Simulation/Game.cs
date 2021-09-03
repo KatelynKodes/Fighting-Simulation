@@ -15,7 +15,7 @@ namespace Fight_Simulation
         Monster Monster3;
         Monster Monster4;
 
-        public void Run()
+        void Start()
         {
             //Monster 1 Stats
             Monster1.name = "Whompus";
@@ -29,25 +29,46 @@ namespace Fight_Simulation
             Monster2.Attk = 40f;
             Monster2.Def = 20f;
 
-            
+
             Monster3.name = "backup Whompus";
             Monster3.health = 300f;
             Monster3.Attk = 25.6f;
             Monster3.Def = 5f;
 
-            
+
             Monster4.name = "Uncle Phil";
             Monster4.health = 150f;
             Monster4.Attk = 30f;
             Monster4.Def = 40;
+
+            CurrentMonsterIndex = 1;
+            CurrentMonster1 = GetMonster(CurrentMonsterIndex);
+            CurrentMonsterIndex++;
+            CurrentMonster2 = GetMonster(CurrentMonsterIndex);
+            CurrentMonsterIndex++;
+        }
+
+        public void Run()
+        {
+            Start();
+            while (!gameover)
+            {
+                Update();
+            }
         }
 
         void Update()
         {
             Battle();
-
+            UpdateCurrentMonsters();
+            Console.ReadKey(true);
         }
 
+        /// <summary>
+        /// Gets a monster by the monsterindex
+        /// </summary>
+        /// <param name="MonsterIndex"></param>
+        /// <returns></returns>
         Monster GetMonster(int MonsterIndex)
         {
             Monster PlaceHolderMonster;
@@ -55,7 +76,7 @@ namespace Fight_Simulation
             PlaceHolderMonster.health = 0f;
             PlaceHolderMonster.Attk = 0f;
             PlaceHolderMonster.Def = 0f;
-
+ 
             if (MonsterIndex == 1)
             {
                 return Monster1;
@@ -72,8 +93,14 @@ namespace Fight_Simulation
             {
                 return Monster4;
             }
+
+            return PlaceHolderMonster;
         }
 
+
+        /// <summary>
+        /// The main battle function where monsters fight
+        /// </summary>
         void Battle()
         {
             //Printing stats
@@ -95,9 +122,32 @@ namespace Fight_Simulation
             Console.Clear();
         }
 
+        /// <summary>
+        /// Updates the current monsters based on their health status or ends the game if simulation has ended
+        /// </summary>
         void UpdateCurrentMonsters()
         {
+            //Check if monster1 has died
+            if (CurrentMonster1.health <= 0)
+            {
+                CurrentMonsterIndex++;
+                CurrentMonster1 = GetMonster(CurrentMonsterIndex);
+            }
 
+            //check if monster2 has died
+            if (CurrentMonster2.health <= 0)
+            {
+                CurrentMonsterIndex++;
+                CurrentMonster2 = GetMonster(CurrentMonsterIndex);
+            }
+
+            //Check if simulation has ended
+            if ((CurrentMonster2.name == "none" || CurrentMonster1.name == "none") && CurrentMonsterIndex >= 4)
+            {
+                Console.WriteLine("Simulation over");
+                gameover = true;
+                Console.ReadKey(true);
+            }
         }
 
         string StartBattle(Monster Monstr1, Monster Monstr2)
