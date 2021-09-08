@@ -9,13 +9,47 @@ namespace Fight_Simulation
         bool gameover;
         Monster CurrentMonster1;
         Monster CurrentMonster2;
-        int CurrentMonsterIndex;
+        int CurrentMonsterIndex = 0;
         Monster Monster1;
         Monster Monster2;
         Monster Monster3;
         Monster Monster4;
 
+        int currentscene = 0;
+
+        int[] NumberArray = new int[6] { 1, 2, 3, 4, 5, 6 };
+
+
         void Start()
+        {
+            ResetCurrentMonsters();
+        }
+
+        public void Run()
+        {
+            PrintArray(NumberArray);
+            LargestAndSmallest(-1, 43, -2, 36, 20);
+            Start();
+            while (!gameover)
+            {
+                Update();
+            }
+            End();
+        }
+        void Update()
+        {
+            UpdateCurrentScene();
+        }
+
+        void End()
+        {
+            Console.WriteLine("Bye-Bye :)");
+        }
+
+        /// <summary>
+        /// Resets the monsters to their original values and the currentMonsterIndex
+        /// </summary>
+        void ResetCurrentMonsters()
         {
             //Monster 1 Stats
             Monster1.name = "Whompus";
@@ -31,7 +65,7 @@ namespace Fight_Simulation
 
 
             Monster3.name = "backup Whompus";
-            Monster3.health = 300f;
+            Monster3.health = 200f;
             Monster3.Attk = 25.6f;
             Monster3.Def = 5f;
 
@@ -41,27 +75,114 @@ namespace Fight_Simulation
             Monster4.Attk = 30f;
             Monster4.Def = 40;
 
-            CurrentMonsterIndex = 1;
+            CurrentMonsterIndex = 0;
             CurrentMonster1 = GetMonster(CurrentMonsterIndex);
             CurrentMonsterIndex++;
             CurrentMonster2 = GetMonster(CurrentMonsterIndex);
-            CurrentMonsterIndex++;
         }
 
-        public void Run()
+        /// <summary>
+        /// Updates the current scene
+        /// </summary>
+        void UpdateCurrentScene()
         {
-            Start();
-            while (!gameover)
+            switch (currentscene)
             {
-                Update();
+                case 0:
+                    DisplayStartMenu();
+                    break;
+                case 1:
+                    Battle();
+                    UpdateCurrentMonsters();
+                    Console.ReadKey(true);
+                    break;
+                case 2:
+                    DisplayRestartMenu();
+                    break;
+                default:
+                    Console.WriteLine("Invalid scene Index");
+                    break;
+
             }
         }
 
-        void Update()
+        /// <summary>
+        /// Presents the player with an option to start the game
+        /// </summary>
+        void DisplayStartMenu()
         {
-            Battle();
-            UpdateCurrentMonsters();
-            Console.ReadKey(true);
+            int choice = GetInput("Welcome to Monster Fight Club simulator, featuring Uncle Phil. Would you like to begin?", "Yes", "No");
+
+            if (choice == 1)
+            {
+                //starts game
+                currentscene = 1;
+            }
+            else if (choice == 2)
+            {
+                //Ends game
+                gameover = true;
+            }
+        }
+
+        /// <summary>
+        /// Presents the player with an option to start the game
+        /// </summary>
+        void DisplayRestartMenu()
+        {
+            int choice = GetInput("Would you like to play again?", "Yes", "No");
+
+            if (choice == 1)
+            {
+
+                //Restarts game
+                currentscene = 0;
+                ResetCurrentMonsters();
+            }
+            else if (choice == 2)
+            {
+                //Ends game
+                gameover = true;
+            }
+        }
+
+
+        /// <summary>
+        /// Allows the player to make a choice based on a question
+        /// </summary>
+        /// <param name="Desc"></param>
+        /// <param name="Option1"></param>
+        /// <param name="Option2"></param>
+        /// <param name="PauseInvalid"></param>
+        /// <returns></returns>
+        int GetInput(string Desc, string Option1, string Option2, bool PauseInvalid = false)
+        {
+            //Writes out the question and the options
+            Console.WriteLine(Desc + "\n [1]" + Option1 + "\n [2]" + Option2);
+            Console.Write(">");
+            string input = Console.ReadLine();
+            int choice = 0;
+
+            //Determines if the input is valid. If not, the loop repeats
+            if (input == "1")
+            {
+                choice = 1;
+            }
+            else if (input == "2")
+            {
+                choice = 2;
+            }
+            else
+            {
+                Console.WriteLine("Invalid Input");
+                //Determines if there is a pause after an invalid input.
+                if (PauseInvalid)
+                { 
+                    Console.ReadKey(true);
+                }
+            }
+
+            return choice;
         }
 
         /// <summary>
@@ -76,22 +197,22 @@ namespace Fight_Simulation
             PlaceHolderMonster.health = 0f;
             PlaceHolderMonster.Attk = 0f;
             PlaceHolderMonster.Def = 0f;
- 
-            if (MonsterIndex == 1)
+
+            if (MonsterIndex == 0)
             {
-                return Monster1;
+                PlaceHolderMonster = Monster1;
+            }
+            else if (MonsterIndex == 1)
+            {
+                PlaceHolderMonster = Monster2;
             }
             else if (MonsterIndex == 2)
             {
-                return Monster2;
+                PlaceHolderMonster = Monster3;
             }
             else if (MonsterIndex == 3)
             {
-                return Monster3;
-            }
-            else if (MonsterIndex == 4)
-            {
-                return Monster4;
+                PlaceHolderMonster = Monster4;
             }
 
             return PlaceHolderMonster;
@@ -132,21 +253,20 @@ namespace Fight_Simulation
             {
                 CurrentMonsterIndex++;
                 CurrentMonster1 = GetMonster(CurrentMonsterIndex);
+                if (CurrentMonster2.health <= 0)
+                {
+                    CurrentMonsterIndex++;
+                    CurrentMonster2 = GetMonster(CurrentMonsterIndex);
+                }
             }
-
-            //check if monster2 has died
-            if (CurrentMonster2.health <= 0)
+            else if (CurrentMonster2.health <= 0)
             {
                 CurrentMonsterIndex++;
                 CurrentMonster2 = GetMonster(CurrentMonsterIndex);
             }
-
-            //Check if simulation has ended
-            if ((CurrentMonster2.name == "none" || CurrentMonster1.name == "none") && CurrentMonsterIndex >= 4)
+            else if ((CurrentMonster2.name == "none" || CurrentMonster1.name == "none") & CurrentMonsterIndex >= 4)
             {
-                Console.WriteLine("Simulation over");
-                gameover = true;
-                Console.ReadKey(true);
+                currentscene = 2;
             }
         }
 
@@ -239,9 +359,22 @@ namespace Fight_Simulation
             }
         }
 
+        /// <summary>
+        /// Takes the value of attack and defense and subtracts defense from attack
+        /// </summary>
+        /// <param name="attacker"></param>
+        /// <param name="defender"></param>
+        /// <returns></returns>
         float CalculateDamage(Monster attacker, Monster defender)
         {
-            return attacker.Attk - defender.Def;
+            if (attacker.Attk > defender.Def)
+            {
+                return attacker.Attk - defender.Def;
+            }
+            else
+            {
+                return 0f;
+            }
         }
 
         struct Monster
@@ -250,6 +383,43 @@ namespace Fight_Simulation
             public float health;
             public float Attk;
             public float Def;
+        }
+
+
+        /// <summary>
+        /// Array Method, lodis excercise.
+        /// </summary>
+        /// <param name="array"></param>
+        void PrintArray(int[] array)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                Console.WriteLine(array[i]);
+            }
+        }
+
+        void LargestAndSmallest(int num1, int num2, int num3, int num4, int num5)
+        {
+            int[] NumberArray = new int[] { num1, num2, num3, num4, num5};
+            int LargestNum = 0;
+            int SmallestNum = num3;
+
+            foreach (int number in NumberArray)
+            {
+                if (number <= SmallestNum)
+                {
+                    SmallestNum = number;
+                }
+                else if (number >= LargestNum)
+                {
+                    LargestNum = number;
+                }
+            }
+
+            Console.WriteLine("The largest number in this array is: " + LargestNum);
+            Console.WriteLine("The smallest number in this array is: " + SmallestNum);
+            Console.ReadKey(true);
+            Console.Clear();
         }
     }
 }
