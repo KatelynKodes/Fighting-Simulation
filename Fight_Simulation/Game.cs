@@ -15,6 +15,8 @@ namespace Fight_Simulation
         Monster Monster3;
         Monster Monster4;
 
+        Monster[] AllMonsters;
+
         int currentscene = 0;
 
         int[] NumberArray = new int[6] { 1, 2, 3, 4, 5, 6 };
@@ -27,8 +29,7 @@ namespace Fight_Simulation
 
         public void Run()
         {
-            PrintArray(NumberArray);
-            LargestAndSmallest(-1, 43, -2, 36, 20);
+
             Start();
             while (!gameover)
             {
@@ -75,10 +76,12 @@ namespace Fight_Simulation
             Monster4.Attk = 30f;
             Monster4.Def = 40;
 
+            AllMonsters = new Monster[] { Monster1, Monster2, Monster3, Monster4 };
+
             CurrentMonsterIndex = 0;
-            CurrentMonster1 = GetMonster(CurrentMonsterIndex);
+            CurrentMonster1 = AllMonsters[CurrentMonsterIndex];
             CurrentMonsterIndex++;
-            CurrentMonster2 = GetMonster(CurrentMonsterIndex);
+            CurrentMonster2 = AllMonsters[CurrentMonsterIndex];
         }
 
         /// <summary>
@@ -243,30 +246,39 @@ namespace Fight_Simulation
             Console.Clear();
         }
 
+        bool TryEndSimulation()
+        {
+            bool SimulationOver = CurrentMonsterIndex >= AllMonsters.Length;
+
+            if (SimulationOver)
+            {
+                currentscene = 2;
+            }
+            return SimulationOver;
+        }
+
         /// <summary>
         /// Updates the current monsters based on their health status or ends the game if simulation has ended
         /// </summary>
         void UpdateCurrentMonsters()
         {
-            //Check if monster1 has died
             if (CurrentMonster1.health <= 0)
             {
                 CurrentMonsterIndex++;
-                CurrentMonster1 = GetMonster(CurrentMonsterIndex);
-                if (CurrentMonster2.health <= 0)
+                if (TryEndSimulation())
                 {
-                    CurrentMonsterIndex++;
-                    CurrentMonster2 = GetMonster(CurrentMonsterIndex);
+                    return;
                 }
+                CurrentMonster1 = AllMonsters[CurrentMonsterIndex];
             }
-            else if (CurrentMonster2.health <= 0)
+            if (CurrentMonster2.health <= 0)
             {
                 CurrentMonsterIndex++;
-                CurrentMonster2 = GetMonster(CurrentMonsterIndex);
-            }
-            else if ((CurrentMonster2.name == "none" || CurrentMonster1.name == "none") & CurrentMonsterIndex >= 4)
-            {
-                currentscene = 2;
+                if (TryEndSimulation())
+                {
+                    return;
+                }
+                CurrentMonster2 = AllMonsters[CurrentMonsterIndex];
             }
         }
 
@@ -397,29 +409,25 @@ namespace Fight_Simulation
                 Console.WriteLine(array[i]);
             }
         }
-
-        void LargestAndSmallest(int num1, int num2, int num3, int num4, int num5)
+        void LargestAndSmallest(int[] arr)
         {
-            int[] NumberArray = new int[] { num1, num2, num3, num4, num5};
-            int LargestNum = 0;
-            int SmallestNum = num3;
+            int LargestNum = arr[0];
+            int SmallestNum = arr[0];
 
-            foreach (int number in NumberArray)
+            for (int i = 0; i < arr.Length; i++)
             {
-                if (number <= SmallestNum)
+                if (arr[i] > LargestNum)
                 {
-                    SmallestNum = number;
+                    LargestNum = arr[i];
                 }
-                else if (number >= LargestNum)
+                else if (arr[i] < SmallestNum)
                 {
-                    LargestNum = number;
+                    SmallestNum = arr[i];
                 }
             }
 
-            Console.WriteLine("The largest number in this array is: " + LargestNum);
-            Console.WriteLine("The smallest number in this array is: " + SmallestNum);
-            Console.ReadKey(true);
-            Console.Clear();
+            Console.WriteLine("The largest number in this array is "  + LargestNum);
+            Console.WriteLine("The smallest number in this array is " + SmallestNum);
         }
     }
 }
